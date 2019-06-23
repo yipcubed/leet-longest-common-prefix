@@ -3,6 +3,9 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <utility>
+#include <functional>
+#include <numeric>
 
 using namespace std;
 
@@ -23,19 +26,20 @@ public:
     // Space: O(1)
     string longestCommonPrefix(vector<string>& strs) {
         if (strs.empty())
-          return "";
-        string prefix;
-        unsigned long minLength = strs[0].length();
-        for (const string& s: strs) {
-          minLength = min(s.length(), minLength);
-        }
+          return string();
+        auto it = strs.cbegin();
+        unsigned long minLength = it->length();
+        ++it;
+        for_each(it, strs.cend(), 
+          [&minLength](const string& elem) { 
+            minLength = min(minLength, elem.length()); 
+          });
         for (unsigned long i = 0; i < minLength; ++i) {
-          char check = strs[0].at(i);
-            for (const string& s: strs) {
-              if (check != s[i]) {
-                return s.substr(0, i);
-              }
-            }
+          char check = strs[0][i];
+          for (auto st = it; st < strs.cend(); ++st) {
+             if (check != (*st)[i])
+              return st->substr(0, i); 
+          }
         }
         return strs[0].substr(0, minLength);
     }
